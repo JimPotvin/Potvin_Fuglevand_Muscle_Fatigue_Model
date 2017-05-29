@@ -1,10 +1,9 @@
 % Motor Unit Based Muscle Fatigue Model by Jim Potvin & Andrew Fuglevand
 % front end (rested size-principle) based on Fuglevand, Winter & Patla (1993)
-% last updated 2017-05-21 by Jim Potvin
+% last updated 2017-05-28 by Jim Potvin
 
 %clear all
 clc
-clf('reset')   %clears all graphics
 
 %% Model input parameters
     nu = 120;           % number of neurons (ie. motor units) in the modeled pool ("n") 
@@ -36,7 +35,7 @@ clf('reset')   %clears all graphics
 
 %     % Create isotonic data -----------------------------------
 
-        fthscale = 0.50             % sets %MVC level for the trial duration (100% MVC is 1.00)
+        fthscale = 0.5             % sets %MVC level for the trial duration (100% MVC is 1.00)
         con = '0.50';               % for output file names
         fthtime = 100;              % duration to run trial (seconds)
         
@@ -178,16 +177,11 @@ clf('reset')   %clears all graphics
     b2 = log(fat)/(nu-1);       
     mufatrate = exp(b2 * (n-1));  
 
-    b3 = log(rec)/(nu-1);       
-    murecrate = exp(b3 * (n-1));  
-
     fatigue = zeros(1,nu);
-    recovery = zeros(1,nu);
     for mu = 1:nu
          fatigue(mu) = mufatrate(mu) * (FatFac / fat) * P(mu);    
             % the full fatigue rate is mufatrate(mu) * [FatFac / fat] * Pr(mu,act) * P(mu)
             % the only variable is the relative force: Pr(mu,act), so this part is calculated once here
-         recovery(mu) = 0;   %set to zero for now
     end
     
 % Establishing the rested excitation required for each target load level (if 0.1% resolution, then 0.1% to 100%)    
@@ -337,7 +331,7 @@ clf('reset')   %clears all graphics
         % Calculating the fatigue (force loss) for each motor unit
 
         for mu = 1:nu
-            if  mufrFAT(mu, i) >= recminfr                                          % Force loss of each MU for each interval
+            if  mufrFAT(mu, i) >= 0                                                 % Force loss of each MU for each interval
                 Pchange(mu,i) = -1 * (fatigue(mu) / samprate) * PrFAT(mu, i);       % based on % of MU fusion force
             elseif mufrFAT(mu, i) < recminfr                                        
                 Pchange(mu,i) = recovery(mu) / samprate;   
@@ -377,7 +371,6 @@ clf('reset')   %clears all graphics
         end        
     end
     
-clf('reset')   %clears all graphics
                 
 %% Output
                 
@@ -385,7 +378,7 @@ EndStrength = (TPtMAX(fthsamp) * 100);
 
 endurtime
             
-for mu = 0:mujump:nu
+for mu = 0:nu
     if mu == 0
         mu = 1;
     end
