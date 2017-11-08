@@ -12,3 +12,4 @@ name = "pypi"
 [packages]
 
 smop = "*"
+numpy = "*"
